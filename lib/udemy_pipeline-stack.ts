@@ -1,7 +1,7 @@
 import * as cdk from '@aws-cdk/core';
 import { Artifact, Pipeline } from '@aws-cdk/aws-codepipeline';
 import { SecretValue } from '@aws-cdk/core';
-import {CodeBuildAction, GitHubSourceAction} from '@aws-cdk/aws-codepipeline-actions'
+import {CloudFormationCreateUpdateStackAction, CodeBuildAction, GitHubSourceAction} from '@aws-cdk/aws-codepipeline-actions'
 import { BuildSpec, LinuxBuildImage, PipelineProject } from '@aws-cdk/aws-codebuild';
 // import * as sqs from '@aws-cdk/aws-sqs';
 
@@ -50,6 +50,18 @@ export class UdemyPipelineStack extends cdk.Stack {
             ),
         }),
       }),
+      ],
+    });
+
+    pipeline.addStage({
+      stageName: "Pipeline_Update",
+      actions:[
+        new CloudFormationCreateUpdateStackAction( {
+          actionName: "Pipeline_Update",
+          stackName: "UdemyPipelineStack",
+          templatePath: cdkBuildOutput.atPath("UdemyPipelineStack.template.json"),
+          adminPermissions: true,
+        }),
       ],
     });
   }
