@@ -40,7 +40,7 @@ export class UdemyPipelineStack extends cdk.Stack {
       actions: [new CodeBuildAction({
           actionName: 'CDK_Build',
           input :sourceOutput,
-          output :cdkBuildOutput,
+          outputs :[cdkBuildOutput],
           project: new PipelineProject(this, `CDKBuildProject`, {
             environment:{
               buildImage: LinuxBuildImage.STANDARD_5_0
