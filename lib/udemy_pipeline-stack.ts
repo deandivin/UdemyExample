@@ -14,7 +14,8 @@ export class UdemyPipelineStack extends cdk.Stack {
       crossAccountKeys: false,
     });
 
-    const sourceOutput = new Artifact('SourceOutput');
+    const pipeline_sourceOutput = new Artifact('CDKSourceOutput');
+    const ServiceSourceOutput = new Artifact('ServiceSourceOutput')
 
     pipeline.addStage({
       stageName: 'Source',
@@ -25,10 +26,17 @@ export class UdemyPipelineStack extends cdk.Stack {
           branch: 'main',
           actionName: 'PipelineSource',
           oauthToken: SecretValue.secretsManager('udemy-pipeline-token'),
-          output: sourceOutput
-        }
+          output: pipeline_sourceOutput
+        }),
 
-        )
+        new GitHubSourceAction({
+          owner:'deandivin',
+          repo: 'Udemy-express-lambda',
+          branch: 'main',
+          actionName: 'Service_Source',
+          oauthToken: SecretValue.secretsManager('udemy-pipeline-token'),
+          output: ServiceSourceOutput
+        })
 
       ]
     });
@@ -39,7 +47,7 @@ export class UdemyPipelineStack extends cdk.Stack {
       stageName: 'Codebuild',
       actions: [new CodeBuildAction({
           actionName: 'CDK_Build',
-          input :sourceOutput,
+          input :pipeline_sourceOutput,
           outputs :[cdkBuildOutput],
           project: new PipelineProject(this, `CDKBuildProject`, {
             environment:{
